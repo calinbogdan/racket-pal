@@ -1,15 +1,20 @@
-const _ = require("lodash");
-const faker = require("faker");
-
-const ENGINEERS_COUNT = 10;
-
-const EngineersPseudoCollection = _.range(0, ENGINEERS_COUNT).map((number) => ({
-  id: number,
-  name: faker.name.findName(),
-}));
+const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { unmarshall } = require("@aws-sdk/util-dynamodb");
 
 async function getEngineers() {
-  return Promise.resolve(EngineersPseudoCollection);
+  const client = new DynamoDBClient({});
+
+  const engineers = await client.send(
+    new ScanCommand({
+      TableName: "engineers",
+    })
+  );
+
+  if (engineers.Items) {
+    return engineers.Items.map((engineerItem) => unmarshall(engineerItem));
+  }
+
+  return [];
 }
 
 const EngineersRepo = {
