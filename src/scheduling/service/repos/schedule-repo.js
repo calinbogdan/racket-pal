@@ -1,4 +1,7 @@
+const { DynamoDBClient, GetItemCommand } = require("@aws-sdk/client-dynamodb");
+const { marshall } = require("@aws-sdk/util-dynamodb");
 const _ = require("lodash");
+const { getDynamoDBClient } = require("../../../utils/dynamodb");
 const { dateIsInWeekend } = require("../utils/date");
 
 const dateTimeToIndex = (date) => date.toISODate();
@@ -6,7 +9,18 @@ const dateTimeToIndex = (date) => date.toISODate();
 const SchedulePseudoMongoTable = {};
 
 async function getScheduleForDate(date) {
+  const client = getDynamoDBClient();
   const dateIndex = dateTimeToIndex(date);
+
+  const schedule = await client.send(
+    new GetItemCommand({
+      TableName: "engineers",
+      Key: marshall({
+        date: string,
+      }),
+    })
+  );
+
   return Promise.resolve(SchedulePseudoMongoTable[dateIndex]);
 }
 
