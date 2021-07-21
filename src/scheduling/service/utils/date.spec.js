@@ -42,6 +42,7 @@ describe("getWorkingDayDateBeforeDay", () => {
       const inputDate = DateTime.fromObject({ weekday: weekdayInput });
       const workingDateDayBefore = getWorkingDayDateBeforeDay(inputDate);
       expect(workingDateDayBefore.weekday).toBe(weekdayResult);
+      expect(workingDateDayBefore.ordinal).toBeLessThan(inputDate.ordinal);
     }
   );
 });

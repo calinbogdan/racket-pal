@@ -2,6 +2,7 @@ const express = require("express");
 const Joi = require("joi");
 const { DateTime } = require("luxon");
 const EngineersRepo = require("./scheduling/service/repos/engineers-repo");
+const ScheduleRepo = require("./scheduling/service/repos/schedule-repo");
 const SchedulingService = require("./scheduling/service/service");
 
 const app = express();
@@ -13,7 +14,7 @@ const schedulePayloadSchema = Joi.object({
 });
 
 app.get("/", async (req, res) => {
-  const engineers = await EngineersRepo.getEngineers();
+  const engineers = await ScheduleRepo.getScheduleFor14DaysFrom(DateTime.now());
 
   res.send(engineers);
 });
@@ -24,14 +25,20 @@ app.post("/schedule", async (req, res) => {
   if (validationResult.error) {
     return res.status(400).send(validationResult.error);
   }
+
   const date = validationResult.value.date;
 
   const dateToSchedule = DateTime.fromISO(date);
 
-  const scheduledEngineers = await SchedulingService.scheduleFor(
-    dateToSchedule
-  );
-  return res.status(200).json({ scheduledEngineers });
+  try {
+    const scheduledEngineers = await SchedulingService.scheduleFor(
+      dateToSchedule
+    );
+    return res.status(200).json({ scheduledEngineers });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send(error);
+  }
 });
 
 module.exports = app;

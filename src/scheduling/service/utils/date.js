@@ -4,8 +4,11 @@ const dateIsInWeekend = (date) =>
   [SaturdayIndex, SundayIndex].includes(date.weekday);
 
 const getWorkingDayDateBeforeDay = (date) => {
-  if ([SaturdayIndex, SundayIndex, MondayIndex].includes(date.weekday)) {
+  if ([SaturdayIndex, SundayIndex].includes(date.weekday)) {
     return date.minus({ days: date.weekday - 5 });
+  }
+  if (MondayIndex === date.weekday) {
+    return date.minus({ days: 3 });
   }
   return date.minus({ days: 1 });
 };
